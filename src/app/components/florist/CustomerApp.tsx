@@ -255,7 +255,7 @@ export default function CustomerApp({}: CustomerAppProps) {
   return (
     <div className="min-h-screen bg-[var(--accent-50)] flex flex-col max-w-sm mx-auto relative">
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div data-refresh-scroll className="flex-1 overflow-y-auto pb-20 overscroll-y-contain">
         {activeTab === 'home' && (
           <HomeTab
             user={user}
