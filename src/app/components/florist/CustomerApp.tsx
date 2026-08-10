@@ -89,8 +89,15 @@ export default function CustomerApp({}: CustomerAppProps) {
     api.getOrders(profile.id, false).then(os => setOrders(os.map(adaptOrder))).catch(console.error);
     api.getWishlist(profile.id).then(ids => setWishlist(new Set(ids))).catch(console.error);
     api.getNotifications(profile.id).then(setNotifications).catch(console.error);
-    const unsubscribe = api.subscribeToNotifications(profile.id, (n) => setNotifications(prev => [n, ...prev]));
-    return unsubscribe;
+    const unsubscribeNotif = api.subscribeToNotifications(profile.id, (n) => setNotifications(prev => [n, ...prev]));
+    // Begitu admin mengubah status pesanan (konfirmasi/proses/kirim/selesai),
+    // update langsung status di daftar pesanan & halaman detail pesanan yang sedang dibuka,
+    // tanpa perlu pembeli refresh atau login ulang.
+    const unsubscribeOrders = api.subscribeToOrderUpdates(profile.id, (updated) => {
+      setOrders(prev => prev.map(o => (o as any).dbId === updated.id ? { ...o, status: updated.status, updatedAt: new Date(updated.updated_at) } : o));
+      setSelectedOrder(prev => prev && (prev as any).dbId === updated.id ? { ...prev, status: updated.status, updatedAt: new Date(updated.updated_at) } : prev);
+    });
+    return () => { unsubscribeNotif(); unsubscribeOrders(); };
   }, [profile?.id]);
 
   const goTo = useCallback((s: Screen) => {
@@ -255,7 +262,7 @@ export default function CustomerApp({}: CustomerAppProps) {
   return (
     <div className="min-h-screen bg-[var(--accent-50)] flex flex-col max-w-sm mx-auto relative">
       {/* Tab content */}
-      <div data-refresh-scroll className="flex-1 overflow-y-auto pb-20 overscroll-y-contain">
+      <div className="flex-1 overflow-y-auto pb-20">
         {activeTab === 'home' && (
           <HomeTab
             user={user}
