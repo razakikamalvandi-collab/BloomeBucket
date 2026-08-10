@@ -124,6 +124,13 @@
     @apply border-border outline-ring/50;
   }
 
+  html,
+  body {
+    /* Jaring pengaman: cegah horizontal scroll di semua ukuran layar */
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
