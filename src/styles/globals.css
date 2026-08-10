@@ -1,0 +1,28 @@
+/* BloomeBucket responsive scrolling: one vertical scroll owner (the app shell). */
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+html,
+body {
+  overscroll-behavior-y: contain;
+}
+
+.bloome-app {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+/* Keep horizontal carousels scrollable without creating vertical scroll traps. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

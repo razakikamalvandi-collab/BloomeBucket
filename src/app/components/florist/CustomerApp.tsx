@@ -89,15 +89,8 @@ export default function CustomerApp({}: CustomerAppProps) {
     api.getOrders(profile.id, false).then(os => setOrders(os.map(adaptOrder))).catch(console.error);
     api.getWishlist(profile.id).then(ids => setWishlist(new Set(ids))).catch(console.error);
     api.getNotifications(profile.id).then(setNotifications).catch(console.error);
-    const unsubscribeNotif = api.subscribeToNotifications(profile.id, (n) => setNotifications(prev => [n, ...prev]));
-    // Begitu admin mengubah status pesanan (konfirmasi/proses/kirim/selesai),
-    // update langsung status di daftar pesanan & halaman detail pesanan yang sedang dibuka,
-    // tanpa perlu pembeli refresh atau login ulang.
-    const unsubscribeOrders = api.subscribeToOrderUpdates(profile.id, (updated) => {
-      setOrders(prev => prev.map(o => (o as any).dbId === updated.id ? { ...o, status: updated.status, updatedAt: new Date(updated.updated_at) } : o));
-      setSelectedOrder(prev => prev && (prev as any).dbId === updated.id ? { ...prev, status: updated.status, updatedAt: new Date(updated.updated_at) } : prev);
-    });
-    return () => { unsubscribeNotif(); unsubscribeOrders(); };
+    const unsubscribe = api.subscribeToNotifications(profile.id, (n) => setNotifications(prev => [n, ...prev]));
+    return unsubscribe;
   }, [profile?.id]);
 
   const goTo = useCallback((s: Screen) => {
@@ -252,7 +245,7 @@ export default function CustomerApp({}: CustomerAppProps) {
 
   if (dataLoading || !user) {
     return (
-      <div className="min-h-screen bg-[var(--accent-50)] flex items-center justify-center max-w-sm mx-auto">
+      <div className="min-h-screen bg-[var(--accent-50)] flex items-center justify-center w-full max-w-none mx-auto">
         <div className="text-gray-400 text-sm">Memuat...</div>
       </div>
     );
@@ -260,9 +253,9 @@ export default function CustomerApp({}: CustomerAppProps) {
 
   // ─── Main Tab Shell ────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[var(--accent-50)] flex flex-col max-w-sm mx-auto relative">
+    <div className="min-h-screen bg-[var(--accent-50)] flex flex-col w-full max-w-none mx-auto relative">
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div data-refresh-scroll className="flex-1 pb-20">
         {activeTab === 'home' && (
           <HomeTab
             user={user}
@@ -770,7 +763,7 @@ function ProductScreen({ product, inCart, isWishlisted, onBack, onAddCart, onTog
   };
 
   return (
-    <div className="min-h-screen bg-white max-w-sm mx-auto">
+    <div className="min-h-screen bg-white w-full max-w-none mx-auto">
       <div className="relative">
         <div className="relative h-80 overflow-hidden">
           <img src={imgs[activeImg]} alt={product.name} className="w-full h-full object-cover" />
@@ -908,7 +901,7 @@ function CheckoutScreen({ cart, subtotal, shipping, discount, grandTotal, select
   const [showMapPicker, setShowMapPicker] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[var(--accent-50)] max-w-sm mx-auto">
+    <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
       <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20 flex items-center gap-3">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Checkout</h1>
@@ -1008,7 +1001,7 @@ function OrderDetailScreen({ order, onBack }: { order: Order; onBack: () => void
   const currentStep = ORDER_STATUS_CFG[order.status]?.step || 0;
 
   return (
-    <div className="min-h-screen bg-[var(--accent-50)] max-w-sm mx-auto">
+    <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
       <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20 flex items-center gap-3">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Detail Pesanan</h1>
@@ -1129,7 +1122,7 @@ function EditProfileScreen({ user, userId, onBack, onSave }: any) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--accent-50)] max-w-sm mx-auto">
+    <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
       <div className="bg-white px-4 pt-10 pb-4 shadow-sm flex items-center gap-3">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Edit Profil</h1>
@@ -1174,7 +1167,7 @@ function EditProfileScreen({ user, userId, onBack, onSave }: any) {
 function ThemeScreen({ currentColor, onBack, onSelect }: any) {
   const [selected, setSelected] = useState(currentColor);
   return (
-    <div className="min-h-screen bg-[var(--accent-50)] max-w-sm mx-auto">
+    <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
       <div className="bg-white px-4 pt-10 pb-4 shadow-sm flex items-center gap-3">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Tema Warna</h1>
@@ -1217,7 +1210,7 @@ function LoginScreen({ onLogin, onRegister, error }: any) {
   };
 
   return (
-    <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col">
+    <div className="min-h-screen bg-white w-full max-w-none mx-auto flex flex-col">
       <div className="flex-1 px-6 pt-16 pb-8 flex flex-col">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-[var(--accent-100)] rounded-3xl flex items-center justify-center mx-auto mb-4">
@@ -1275,7 +1268,7 @@ function RegisterScreen({ onRegister, onLogin, error }: any) {
   ];
 
   return (
-    <div className="min-h-screen bg-white max-w-sm mx-auto flex flex-col px-6 pt-16 pb-8">
+    <div className="min-h-screen bg-white w-full max-w-none mx-auto flex flex-col px-6 pt-16 pb-8">
       <div className="text-center mb-8">
         <span className="text-4xl">🌸</span>
         <h1 className="font-black text-2xl text-gray-800 mt-3">Buat Akun</h1>
