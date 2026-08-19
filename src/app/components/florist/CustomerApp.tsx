@@ -255,7 +255,55 @@ export default function CustomerApp({}: CustomerAppProps) {
   return (
     <div className="min-h-screen bg-[var(--accent-50)] flex flex-col w-full max-w-none mx-auto relative">
       {/* Tab content */}
-      <div data-refresh-scroll className="flex-1 pb-20">
+      <div data-refresh-scroll className="flex-1 pb-20 md:pb-6">
+        {/* Desktop navigation (md+) */}
+        <div className="hidden md:block">
+          <div className="sticky top-0 z-40 bg-white border-b h-14">
+            <div className="h-full max-w-screen-xl mx-auto px-4 flex items-center justify-between">
+              <div className="font-black text-gray-800 text-sm flex items-center gap-2">
+                <Sparkles size={16} className="text-[var(--accent-500)]" />
+                Bloome Bucket
+              </div>
+
+              <div className="flex items-center gap-2">
+                {([
+                  { tab: 'home', icon: Home, label: 'Beranda' },
+                  { tab: 'explore', icon: Compass, label: 'Jelajah' },
+                  { tab: 'cart', icon: ShoppingCart, label: 'Keranjang', badge: cartCount },
+                  { tab: 'orders', icon: ClipboardList, label: 'Pesanan' },
+                  { tab: 'profile', icon: User, label: 'Profil' },
+                ] as const).map(({ tab, icon: Icon, label, badge }) => (
+                  <button
+                    key={tab}
+                    onClick={() => { setActiveTab(tab); setScreen(tab); }}
+                    className={`h-9 px-3 rounded-xl flex items-center gap-2 text-xs font-semibold transition-colors whitespace-nowrap ${
+                      activeTab === tab
+                        ? 'bg-[var(--accent-500)] text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon
+                      size={18}
+                      strokeWidth={activeTab === tab ? 2.5 : 1.8}
+                      className={activeTab === tab ? 'text-white' : 'text-gray-500'}
+                    />
+                    <span>{label}</span>
+                    {badge ? (
+                      <span
+                        className={`min-w-[18px] h-5 rounded-full text-[10px] font-bold flex items-center justify-center px-1 ${
+                          activeTab === tab ? 'bg-white/20 text-white' : 'bg-[var(--accent-500)] text-white'
+                        }`}
+                      >
+                        {badge > 99 ? '99+' : badge}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {activeTab === 'home' && (
           <HomeTab
             user={user}
@@ -323,8 +371,8 @@ export default function CustomerApp({}: CustomerAppProps) {
       </div>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-[var(--accent-100)] z-30">
-        <div className="flex">
+      <nav className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-[var(--accent-100)] z-30 md:hidden">
+        <div className="flex w-full max-w-[560px] mx-auto">
           {([
             { tab: 'home', icon: Home, label: 'Beranda' },
             { tab: 'explore', icon: Compass, label: 'Jelajah' },
@@ -366,11 +414,11 @@ function HomeTab({ user, categories, banners, featuredProducts, newProducts, pop
   return (
     <div className="bg-[var(--accent-50)]">
       {/* Header */}
-      <div className="bg-white px-4 pt-10 pb-4 sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center justify-between">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 sticky top-0 z-20 shadow-sm">
+        <div className="flex items-center justify-between max-w-screen-xl mx-auto">
           <div>
-            <p className="text-xs text-gray-400">Halo, Selamat datang 👋</p>
-            <h1 className="font-bold text-gray-800 text-base">{user.name.split(' ')[0]}</h1>
+            <p className="text-xs lg:text-sm text-gray-400">Halo, Selamat datang 👋</p>
+            <h1 className="font-bold text-gray-800 text-base lg:text-lg">{user.name.split(' ')[0]}</h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -398,16 +446,16 @@ function HomeTab({ user, categories, banners, featuredProducts, newProducts, pop
             </div>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 bg-[var(--accent-50)] border border-[var(--accent-100)] rounded-2xl px-4 py-2.5" onClick={onGoExplore}>
+        <div className="mt-3 flex items-center gap-2 bg-[var(--accent-50)] border border-[var(--accent-100)] rounded-2xl px-4 py-2.5 max-w-screen-xl mx-auto cursor-pointer" onClick={onGoExplore}>
           <Search size={16} className="text-gray-400" />
           <span className="text-sm text-gray-400">Cari bunga kesukaanmu...</span>
         </div>
       </div>
 
-      <div className="px-4 pb-6 space-y-6 mt-4">
+      <div className="px-4 lg:px-8 pb-6 space-y-6 mt-4 max-w-screen-xl mx-auto">
         {/* Banner Carousel — hanya tampil kalau admin sudah menambahkan banner */}
         {banners && banners.length > 0 && (
-          <div className="relative rounded-3xl overflow-hidden h-44 shadow-lg">
+          <div className="relative rounded-3xl overflow-hidden h-44 lg:h-64 shadow-lg">
             {banners.map((b: any, i: number) => (
               <div key={b.id} className={`absolute inset-0 transition-opacity duration-700 ${i === bannerIdx ? 'opacity-100' : 'opacity-0'}`}>
                 <img src={b.image_url} alt={b.title} className="w-full h-full object-cover" />
@@ -447,7 +495,7 @@ function HomeTab({ user, categories, banners, featuredProducts, newProducts, pop
         {/* Popular */}
         <div>
           <SectionHeader title="Terpopuler" onSeeAll={onGoExplore} />
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4 mt-3">
             {popularProducts.map((p: Product) => (
               <ProductCardV key={p.id} product={p} isWishlisted={wishlist.has(p.id)} onOpen={() => onOpenProduct(p)} onToggleWishlist={() => onToggleWishlist(p.id)} />
             ))}
@@ -462,9 +510,10 @@ function HomeTab({ user, categories, banners, featuredProducts, newProducts, pop
 function ExploreTab({ products, categories, searchQuery, selectedCategory, wishlist, onSearch, onSelectCategory, onOpenProduct, onToggleWishlist }: any) {
   return (
     <div className="bg-[var(--accent-50)]">
-      <div className="bg-white px-4 pt-10 pb-4 sticky top-0 z-20 shadow-sm">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 sticky top-0 z-20 shadow-sm">
+        <div className="max-w-screen-xl mx-auto">
         <h1 className="font-bold text-gray-800 text-lg mb-3">Jelajahi Produk</h1>
-        <div className="flex items-center gap-2 bg-[var(--accent-50)] border border-[var(--accent-100)] rounded-2xl px-4 py-2.5">
+        <div className="flex items-center gap-2 bg-[var(--accent-50)] border border-[var(--accent-100)] rounded-2xl px-4 py-2.5 lg:max-w-md">
           <Search size={16} className="text-gray-400 flex-none" />
           <input
             value={searchQuery}
@@ -489,8 +538,9 @@ function ExploreTab({ products, categories, searchQuery, selectedCategory, wishl
             </button>
           ))}
         </div>
+        </div>
       </div>
-      <div className="px-4 py-4">
+      <div className="px-4 lg:px-8 py-4 max-w-screen-xl mx-auto">
         <p className="text-xs text-gray-400 mb-3">{products.length} produk ditemukan</p>
         {products.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -498,7 +548,7 @@ function ExploreTab({ products, categories, searchQuery, selectedCategory, wishl
             <p className="font-medium">Produk tidak ditemukan</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
             {products.map((p: Product) => (
               <ProductCardV key={p.id} product={p} isWishlisted={wishlist.has(p.id)} onOpen={() => onOpenProduct(p)} onToggleWishlist={() => onToggleWishlist(p.id)} />
             ))}
@@ -514,8 +564,8 @@ function CartTab({ cart, subtotal, shipping, discount, grandTotal, wishlistProdu
   if (cart.length === 0) {
     return (
       <div className="bg-[var(--accent-50)] min-h-screen">
-        <div className="bg-white px-4 pt-10 pb-4 shadow-sm">
-          <h1 className="font-bold text-gray-800 text-lg">Keranjang</h1>
+        <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm">
+          <h1 className="font-bold text-gray-800 text-lg max-w-screen-xl mx-auto">Keranjang</h1>
         </div>
         <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
           <div className="w-24 h-24 bg-[var(--accent-100)] rounded-full flex items-center justify-center mb-5">
@@ -546,10 +596,10 @@ function CartTab({ cart, subtotal, shipping, discount, grandTotal, wishlistProdu
 
   return (
     <div className="bg-[var(--accent-50)] min-h-screen">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20">
-        <h1 className="font-bold text-gray-800 text-lg">Keranjang ({cart.length})</h1>
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm sticky top-0 z-20">
+        <h1 className="font-bold text-gray-800 text-lg max-w-screen-xl mx-auto">Keranjang ({cart.length})</h1>
       </div>
-      <div className="px-4 py-4 space-y-3 pb-44">
+      <div className="px-4 lg:px-8 py-4 space-y-3 pb-44 max-w-screen-xl mx-auto">
         {cart.map((item: CartItem) => (
           <div key={item.product.id} className="bg-white rounded-2xl p-3 flex gap-3 shadow-sm">
             <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded-xl flex-none" />
@@ -607,8 +657,8 @@ function CartTab({ cart, subtotal, shipping, discount, grandTotal, wishlistProdu
       </div>
 
       {/* Checkout Button */}
-      <div className="fixed bottom-[60px] left-1/2 -translate-x-1/2 w-full max-w-sm p-4 bg-gradient-to-t from-[var(--accent-50)] to-transparent">
-        <button onClick={onCheckout} className="w-full bg-[var(--accent-500)] hover:bg-[var(--accent-600)] text-white font-bold rounded-2xl py-4 flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-200)] transition-all active:scale-98">
+      <div className="fixed bottom-[60px] left-0 right-0 w-full p-4 bg-gradient-to-t from-[var(--accent-50)] to-transparent">
+        <button onClick={onCheckout} className="w-full max-w-screen-sm mx-auto bg-[var(--accent-500)] hover:bg-[var(--accent-600)] text-white font-bold rounded-2xl py-4 flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-200)] transition-all active:scale-98">
           <ShoppingCart size={18} />
           Checkout · {formatPrice(grandTotal)}
         </button>
@@ -624,7 +674,8 @@ function OrdersTab({ orders, onOpenOrder }: { orders: Order[]; onOpenOrder: (o: 
 
   return (
     <div className="bg-[var(--accent-50)] min-h-screen">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm sticky top-0 z-20">
+        <div className="max-w-screen-xl mx-auto">
         <h1 className="font-bold text-gray-800 text-lg mb-3">Pesanan Saya</h1>
         <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
           {([['all', 'Semua'], ['pending', 'Menunggu'], ['processing', 'Diproses'], ['shipped', 'Dikirim'], ['delivered', 'Selesai']] as const).map(([key, label]) => (
@@ -633,8 +684,9 @@ function OrdersTab({ orders, onOpenOrder }: { orders: Order[]; onOpenOrder: (o: 
             </button>
           ))}
         </div>
+        </div>
       </div>
-      <div className="px-4 py-4 space-y-3">
+      <div className="px-4 lg:px-8 py-4 space-y-3 max-w-screen-xl mx-auto">
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
             <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
@@ -675,8 +727,8 @@ function ProfileTab({ user, orders, wishlistCount, onEditProfile, onLogout, onGo
 
   return (
     <div className="bg-[var(--accent-50)] min-h-screen">
-      <div className="bg-gradient-to-br from-[var(--accent-400)] to-pink-500 px-4 pt-12 pb-8">
-        <div className="flex items-center gap-4">
+      <div className="bg-gradient-to-br from-[var(--accent-400)] to-pink-500 px-4 lg:px-8 pt-12 lg:pt-8 pb-8">
+        <div className="flex items-center gap-4 max-w-screen-xl mx-auto">
           <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-[var(--accent-500)] font-black text-xl shadow-lg overflow-hidden">
             {user.avatarUrl ? <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" /> : user.avatar}
           </div>
@@ -689,7 +741,7 @@ function ProfileTab({ user, orders, wishlistCount, onEditProfile, onLogout, onGo
             <Edit3 size={16} className="text-white" />
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3 mt-5">
+        <div className="grid grid-cols-3 gap-3 mt-5 max-w-screen-xl mx-auto">
           {[
             { label: 'Pesanan', value: orders.length },
             { label: 'Selesai', value: delivered },
@@ -703,7 +755,7 @@ function ProfileTab({ user, orders, wishlistCount, onEditProfile, onLogout, onGo
         </div>
       </div>
 
-      <div className="px-4 py-5 space-y-3">
+      <div className="px-4 lg:px-8 py-5 space-y-3 max-w-screen-xl mx-auto">
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
           {[
             { icon: MapPin, label: 'Alamat Pengiriman', value: user.address || 'Belum diatur', onClick: onEditProfile },
@@ -765,7 +817,7 @@ function ProductScreen({ product, inCart, isWishlisted, onBack, onAddCart, onTog
   return (
     <div className="min-h-screen bg-white w-full max-w-none mx-auto">
       <div className="relative">
-        <div className="relative h-80 overflow-hidden">
+        <div className="relative h-80 lg:h-96 overflow-hidden">
           <img src={imgs[activeImg]} alt={product.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
@@ -785,9 +837,9 @@ function ProductScreen({ product, inCart, isWishlisted, onBack, onAddCart, onTog
         </div>
       </div>
 
-      <div className="px-4 pt-5 pb-36">
+      <div className="px-4 lg:px-8 pt-5 pb-36 max-w-screen-lg mx-auto">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="font-bold text-gray-800 text-lg leading-tight flex-1">{product.name}</h1>
+          <h1 className="font-bold text-gray-800 text-lg lg:text-xl leading-tight flex-1">{product.name}</h1>
           {product.isNew && <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-0.5 rounded-full flex-none">Baru</span>}
         </div>
 
@@ -864,8 +916,8 @@ function ProductScreen({ product, inCart, isWishlisted, onBack, onAddCart, onTog
       </div>
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-white border-t border-[var(--accent-100)] p-4">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-[var(--accent-100)] p-4">
+        <div className="flex items-center gap-3 mb-3 max-w-screen-lg mx-auto">
           <div className="flex items-center gap-2 bg-[var(--accent-50)] rounded-xl p-1">
             <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center">
               <Minus size={14} className="text-gray-600" />
@@ -877,7 +929,7 @@ function ProductScreen({ product, inCart, isWishlisted, onBack, onAddCart, onTog
           </div>
           <span className="text-[var(--accent-500)] font-black text-lg">{formatPrice(product.price * qty)}</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 max-w-screen-lg mx-auto">
           {inCart > 0 && (
             <button onClick={onGoCart} className="flex-none px-4 py-3 rounded-2xl border-2 border-[var(--accent-500)] text-[var(--accent-500)] font-bold text-sm">
               Keranjang ({inCart})
@@ -902,12 +954,14 @@ function CheckoutScreen({ cart, subtotal, shipping, discount, grandTotal, select
 
   return (
     <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20 flex items-center gap-3">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm sticky top-0 z-20">
+        <div className="flex items-center gap-3 max-w-screen-lg mx-auto">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Checkout</h1>
+        </div>
       </div>
 
-      <div className="px-4 py-4 pb-36 space-y-4">
+      <div className="px-4 lg:px-8 py-4 pb-36 space-y-4 max-w-screen-lg mx-auto">
         {/* Items */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <p className="font-semibold text-gray-700 mb-3 text-sm">Produk ({cart.length})</p>
@@ -949,7 +1003,7 @@ function CheckoutScreen({ cart, subtotal, shipping, discount, grandTotal, select
         {/* Payment */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <p className="font-semibold text-gray-700 mb-3 text-sm">Metode Pembayaran</p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {PAYMENT_METHODS.map(pm => (
               <button key={pm.id} onClick={() => onSelectPayment(pm.id)} className={`flex items-center gap-2 p-3 rounded-xl border text-sm transition-all ${selectedPayment === pm.id ? 'border-[var(--accent-500)] bg-[var(--accent-50)] text-[var(--accent-600)]' : 'border-gray-100 text-gray-600 hover:border-[var(--accent-200)]'}`}>
                 <PaymentIcon id={pm.id} />
@@ -979,8 +1033,8 @@ function CheckoutScreen({ cart, subtotal, shipping, discount, grandTotal, select
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm p-4 bg-white border-t border-[var(--accent-100)]">
-        <button onClick={onPlaceOrder} className="w-full bg-[var(--accent-500)] hover:bg-[var(--accent-600)] text-white font-bold rounded-2xl py-4 shadow-lg shadow-[var(--accent-200)] transition-all active:scale-98">
+      <div className="fixed bottom-0 left-0 right-0 w-full p-4 bg-white border-t border-[var(--accent-100)]">
+        <button onClick={onPlaceOrder} className="w-full max-w-screen-sm mx-auto bg-[var(--accent-500)] hover:bg-[var(--accent-600)] text-white font-bold rounded-2xl py-4 shadow-lg shadow-[var(--accent-200)] transition-all active:scale-98 flex items-center justify-center">
           Buat Pesanan · {formatPrice(grandTotal)}
         </button>
       </div>
@@ -1002,12 +1056,14 @@ function OrderDetailScreen({ order, onBack }: { order: Order; onBack: () => void
 
   return (
     <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm sticky top-0 z-20 flex items-center gap-3">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm sticky top-0 z-20">
+        <div className="flex items-center gap-3 max-w-screen-lg mx-auto">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Detail Pesanan</h1>
+        </div>
       </div>
 
-      <div className="px-4 py-4 space-y-4 pb-10">
+      <div className="px-4 lg:px-8 py-4 space-y-4 pb-10 max-w-screen-lg mx-auto">
         {/* Status */}
         <div className={`rounded-2xl p-4 ${cfg.bg} flex items-center justify-between`}>
           <div>
@@ -1123,12 +1179,14 @@ function EditProfileScreen({ user, userId, onBack, onSave }: any) {
 
   return (
     <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm flex items-center gap-3">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm">
+        <div className="flex items-center gap-3 max-w-screen-lg mx-auto">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Edit Profil</h1>
         <button onClick={handleSave} disabled={saving} className="ml-auto text-sm font-bold text-[var(--accent-500)] disabled:opacity-50">{saving ? '...' : 'Simpan'}</button>
+        </div>
       </div>
-      <div className="px-4 py-6 space-y-4">
+      <div className="px-4 lg:px-8 py-6 space-y-4 max-w-screen-lg mx-auto">
         <div className="flex justify-center">
           <label className="relative cursor-pointer group">
             <div className="w-24 h-24 bg-[var(--accent-100)] rounded-full flex items-center justify-center text-[var(--accent-500)] font-black text-2xl overflow-hidden">
@@ -1168,13 +1226,15 @@ function ThemeScreen({ currentColor, onBack, onSelect }: any) {
   const [selected, setSelected] = useState(currentColor);
   return (
     <div className="min-h-screen bg-[var(--accent-50)] w-full max-w-none mx-auto">
-      <div className="bg-white px-4 pt-10 pb-4 shadow-sm flex items-center gap-3">
+      <div className="bg-white px-4 lg:px-8 pt-10 lg:pt-6 pb-4 shadow-sm">
+        <div className="flex items-center gap-3 max-w-screen-lg mx-auto">
         <button onClick={onBack} className="p-2 rounded-xl bg-[var(--accent-50)]"><ChevronLeft size={20} className="text-gray-700" /></button>
         <h1 className="font-bold text-gray-800 text-lg">Tema Warna</h1>
+        </div>
       </div>
-      <div className="px-4 py-6">
+      <div className="px-4 lg:px-8 py-6 max-w-screen-lg mx-auto">
         <p className="text-sm text-gray-500 mb-4">Pilih warna favoritmu, seluruh tampilan aplikasi akan menyesuaikan.</p>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
           {THEME_PRESETS.map((t: { name: string; hex: string }) => (
             <button
               key={t.hex}
@@ -1210,8 +1270,8 @@ function LoginScreen({ onLogin, onRegister, error }: any) {
   };
 
   return (
-    <div className="min-h-screen bg-white w-full max-w-none mx-auto flex flex-col">
-      <div className="flex-1 px-6 pt-16 pb-8 flex flex-col">
+    <div className="min-h-screen bg-white w-full flex items-center justify-center">
+      <div className="w-full max-w-md px-6 py-12 flex flex-col">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-[var(--accent-100)] rounded-3xl flex items-center justify-center mx-auto mb-4">
             <span className="text-4xl">🌸</span>
@@ -1238,7 +1298,7 @@ function LoginScreen({ onLogin, onRegister, error }: any) {
           </button>
         </div>
         <p className="text-center text-sm text-gray-500 mt-6">Belum punya akun? <button onClick={onRegister} className="text-[var(--accent-500)] font-bold">Daftar</button></p>
-      </div>
+        </div>
     </div>
   );
 }
@@ -1268,7 +1328,8 @@ function RegisterScreen({ onRegister, onLogin, error }: any) {
   ];
 
   return (
-    <div className="min-h-screen bg-white w-full max-w-none mx-auto flex flex-col px-6 pt-16 pb-8">
+    <div className="min-h-screen bg-white w-full flex items-center justify-center">
+      <div className="w-full max-w-md px-6 py-12 flex flex-col">
       <div className="text-center mb-8">
         <span className="text-4xl">🌸</span>
         <h1 className="font-black text-2xl text-gray-800 mt-3">Buat Akun</h1>
@@ -1287,6 +1348,7 @@ function RegisterScreen({ onRegister, onLogin, error }: any) {
         </button>
       </div>
       <p className="text-center text-sm text-gray-500 mt-6">Sudah punya akun? <button onClick={onLogin} className="text-[var(--accent-500)] font-bold">Masuk</button></p>
+      </div>
     </div>
   );
 }

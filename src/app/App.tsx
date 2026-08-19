@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import * as React from 'react';
 import CustomerApp from './components/florist/CustomerApp';
 import AdminApp from './components/florist/AdminApp';
 import { useAuth } from '../lib/AuthContext';
@@ -7,15 +7,15 @@ import { RefreshCw } from 'lucide-react';
 type AppMode = 'customer' | 'admin';
 
 export default function App() {
-  const [mode, setMode] = useState<AppMode>('customer');
+  const [mode, setMode] = React.useState<AppMode>('customer');
   const { loading, isLoggedIn, isAdmin } = useAuth();
-  const [refreshing, setRefreshing] = useState(false);
-  const touchStartY = useRef<number | null>(null);
-  const touchStartScrollTop = useRef(0);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const touchStartY = React.useRef<number | null>(null);
+  const touchStartScrollTop = React.useRef(0);
 
   // Begitu login dan terdeteksi sebagai admin, otomatis arahkan ke panel admin.
   // Tidak ada tombol/akses manual — hanya akun dengan role admin yang bisa masuk ke sini.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!loading) setMode(isLoggedIn && isAdmin ? 'admin' : 'customer');
   }, [loading, isLoggedIn, isAdmin]);
 
@@ -71,9 +71,9 @@ export default function App() {
   }
 
   return (
-    <div className="bloome-app min-h-screen h-screen bg-gray-100 flex flex-col overflow-y-auto overscroll-y-contain">
+    <div className="bloome-app min-h-screen h-screen bg-gray-100 flex flex-col overflow-y-auto overscroll-y-contain" data-refresh-scroll>
       <div
-        className="w-full w-full min-h-screen bg-white relative"
+        className="w-full mx-auto min-h-screen bg-white relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -84,24 +84,24 @@ export default function App() {
           <CustomerApp />
         )}
 
-        {/* Tombol refresh manual */}
-        <button
-          type="button"
-          onClick={refreshPage}
-          disabled={refreshing}
-          aria-label="Refresh halaman"
-          title="Refresh halaman"
-          className="fixed bottom-24 right-4 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-lg ring-1 ring-black/5 backdrop-blur transition-all hover:scale-105 active:scale-95 disabled:opacity-70 sm:absolute sm:right-4"
-        >
-          <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
-        </button>
+        <div className="fixed inset-x-0 bottom-0 top-0 z-[9999] mx-auto pointer-events-none">
+          <button
+            type="button"
+            onClick={refreshPage}
+            disabled={refreshing}
+            aria-label="Refresh halaman"
+            title="Refresh halaman"
+            className="pointer-events-auto absolute bottom-24 right-4 lg:right-8 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-lg ring-1 ring-black/5 backdrop-blur transition-all hover:scale-105 active:scale-95 disabled:opacity-70"
+          >
+            <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
 
-        {/* Indikator pull-to-refresh */}
-        {refreshing && (
-          <div className="fixed left-1/2 top-4 z-[10000] -translate-x-1/2 rounded-full bg-white px-4 py-2 text-xs font-medium text-gray-600 shadow-lg sm:absolute">
-            Menyegarkan...
-          </div>
-        )}
+          {refreshing && (
+            <div className="pointer-events-auto absolute left-1/2 top-4 -translate-x-1/2 rounded-full bg-white px-4 py-2 text-xs font-medium text-gray-600 shadow-lg">
+              Menyegarkan...
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
